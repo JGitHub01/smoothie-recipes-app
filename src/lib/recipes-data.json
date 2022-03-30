@@ -1,0 +1,33 @@
+[
+  {
+    "name": "Cinnamon Roll Hot Coffee",
+    "ingredients": [{
+      "name": "coffee grounds",
+      "quantity": "1/4 - 1/2 cup"
+    }, {
+      "name": "ground cinnamon",
+      "quantity": "1 tsp"
+    }, {
+      "name": "Almondmilk Sweet",
+      "quantity": "1/4 cup"
+    }, {
+      "name": "whipping cream",
+      "quantity": "1/2 cup"
+    }]
+  }, {
+    "name": "Autumn Pumpkin Smoothie",
+    "ingredients": [{
+      "name": "Almond Breeze Vanilla Almondmilk",
+      "quantity": "2 cups (16 oz.)"
+    }, {
+      "name": "canned pumpkin pie mix",
+      "quantity": "1 cup"
+    }, {
+      "name": "diced crystalized ginger (optional)",
+      "quantity": "2 tbsp."
+    }, {
+      "name": "ice cubes",
+      "quantity": "3"
+    }]
+  }
+]
