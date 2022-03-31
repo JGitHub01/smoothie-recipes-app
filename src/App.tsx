@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./App.scss";
+import "./app.scss";
 import { getRecipes } from "./lib/api-service";
 import { Recipe } from "./lib/model";
 import { RecipesList } from "./view/recipes-list/RecipesList";
@@ -12,11 +12,20 @@ function App() {
     });
   }, []);
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className="app-light-theme">
+      <header className="app-header">
         <h2>My Smoothie Recipes</h2>
       </header>
-      <RecipesList recipes={recipes} />
+      <div className="app-body">
+        <div className="recipes-panel">
+          <input
+            className="recipes-panel__filter"
+            type="text"
+            placeholder="fitler by name"
+          />
+          <RecipesList recipes={recipes} />
+        </div>
+      </div>
     </div>
   );
 }

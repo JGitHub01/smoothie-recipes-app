@@ -1,0 +1,90 @@
+@mixin appTheme(
+  $theme,
+  $app-bg,
+  $header-bg-img,
+  $header-height,
+  $recipes-list-bg,
+  $card-bg,
+  $card-text-color
+) {
+  .#{$theme} {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: $app-bg;
+    min-height: 100vh;
+  }
+
+  .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-image: $header-bg-img;
+    background-size: cover;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+  }
+
+  .app-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+
+    .recipes-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      padding-top: 166px;
+      background-color: $recipes-list-bg;
+
+      &__filter {
+        width: 300px;
+        height: 32px;
+        font-size: 16px;
+        padding-left: 8px;
+        padding-right: 8px;
+        background-color: white;
+        border-width: 1px;
+        border-color: $app-bg;
+      }
+
+      &__list {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        max-width: 750px;
+        width: 75vw;
+      }
+    }
+    .recipe-card {
+      background-color: $card-bg;
+      color: $card-text-color;
+      margin-left: 32px;
+      margin-right: 32px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+  }
+
+  .app-link {
+    color: #61dafb;
+  }
+}
+
+@include appTheme(
+  app-light-theme,
+  hsl(236, 33%, 92%),
+  url("./images/bg-desktop-light.jpg"),
+  150px,
+  hsl(0, 0%, 98%),
+  hsl(220, 98%, 61%),
+  hsl(0, 0%, 98%)
+);
