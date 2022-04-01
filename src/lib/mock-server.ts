@@ -1,5 +1,6 @@
 import { createServer, Factory, Model } from "miragejs";
 import recipesData from "./recipes-data.json";
+import { Recipe } from "./model";
 
 export default function createMockedServer(env = "test") {
   return createServer({
@@ -9,6 +10,7 @@ export default function createMockedServer(env = "test") {
     },
     factories: {
       recipe: Factory.extend({
+        id: "1",
         name: "smoothie-1",
         ingredients: [{ name: "ingredient-1", quantity: "1 tsp" }],
       }),
@@ -17,8 +19,23 @@ export default function createMockedServer(env = "test") {
     routes() {
       this.namespace = "api";
 
-      this.get("/recipes", (schema) => {
-        return schema.all("recipe");
+      this.get("/recipes", (schema, request) => {
+        const name = request.queryParams["name"];
+        return name
+          ? schema.where<"recipe">(
+              "recipe",
+              (recipe: Recipe) =>
+                recipe.name.search(new RegExp(name, "i")) > -1,
+            )
+          : schema.all("recipe");
+      });
+
+      this.put("/recipe:id", (schema, request) => {
+        const id = request.params.id;
+        const attrs = JSON.parse(request.requestBody);
+        const recipe = schema.find("recipe", id);
+
+        return recipe;
       });
     },
 

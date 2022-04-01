@@ -45,17 +45,12 @@
       padding-top: 166px;
       background-color: $recipes-list-bg;
 
-      &__filter {
-        width: 300px;
-        height: 32px;
-        font-size: 16px;
-        padding-left: 8px;
-        padding-right: 8px;
-        background-color: white;
-        border-width: 1px;
-        border-color: $app-bg;
+      &__toolbar {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 16px;
       }
-
       &__list {
         max-width: 750px;
         width: 75vw;
