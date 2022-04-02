@@ -121,28 +121,52 @@ export function RecipeCard(props: IRecipeCardProps) {
           {ingredients?.map(({ name, quantity }, ingredientIdx) => (
             <ListItem key={ingredientIdx} className={classes.ingredient}>
               {mode === "display" ? (
-                <Typography className={classes.quantity}>{quantity}</Typography>
+                <>
+                  <Typography className={classes.quantity}>
+                    {quantity}
+                  </Typography>
+                  <Typography className={classes.name}>{name}</Typography>
+                </>
               ) : (
-                <TextField
-                  className={classes.quantity}
-                  variant="standard"
-                  placeholder="Quantity"
-                  value={quantity}
-                  onChange={(e) => {
-                    setRecipe({
-                      ...recipe,
-                      ingredients: ingredients.map(
-                        ({ name, quantity }, idx) => {
-                          return idx === ingredientIdx
-                            ? { name, quantity: e.target.value }
-                            : { name, quantity };
-                        },
-                      ),
-                    });
-                  }}
-                />
+                <>
+                  <TextField
+                    className={classes.quantity}
+                    variant="standard"
+                    placeholder="Quantity"
+                    value={quantity}
+                    onChange={(e) => {
+                      setRecipe({
+                        ...recipe,
+                        ingredients: ingredients.map(
+                          ({ name, quantity }, idx) => {
+                            return idx === ingredientIdx
+                              ? { name, quantity: e.target.value }
+                              : { name, quantity };
+                          },
+                        ),
+                      });
+                    }}
+                  />
+                  <TextField
+                    className={classes.name}
+                    variant="standard"
+                    placeholder="Ingredient"
+                    value={name}
+                    onChange={(e) => {
+                      setRecipe({
+                        ...recipe,
+                        ingredients: ingredients.map(
+                          ({ name, quantity }, idx) => {
+                            return idx === ingredientIdx
+                              ? { name: e.target.value, quantity }
+                              : { name, quantity };
+                          },
+                        ),
+                      });
+                    }}
+                  />
+                </>
               )}
-              <Typography className={classes.name}>{name}</Typography>
             </ListItem>
           ))}
         </List>
