@@ -12,7 +12,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { Recipe } from "../../lib/model";
 import "./recipe-card.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Accordion = withStyles({
   root: {
@@ -98,6 +98,13 @@ export function RecipeCard(props: IRecipeCardProps) {
       props.onSave,
     );
   const { name, ingredients } = recipe;
+  useEffect(() => {
+    setRecipe({
+      id: props.id,
+      name: props.name,
+      ingredients: props.ingredients,
+    });
+  }, [props.id, props.name, props.ingredients]);
   return (
     <Accordion
       square

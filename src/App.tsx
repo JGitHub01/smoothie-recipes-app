@@ -1,7 +1,8 @@
 import { Button, Icon, InputAdornment, TextField } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import "./app.scss";
-import { getRecipes } from "./lib/api-service";
+import { getRecipes } from "./lib/local-storage-service";
+//import { getRecipes } from "./lib/api-service";
 import { debounceTimer } from "./lib/debounceTimer";
 import { Recipe } from "./lib/model";
 import { RecipesList } from "./view/recipes-list/RecipesList";
@@ -40,7 +41,12 @@ function App() {
             </Button>
           </div>
           <div className="recipes-panel__list">
-            <RecipesList recipes={recipes} />
+            <RecipesList
+              recipes={recipes}
+              onSave={(status) => {
+                search();
+              }}
+            />
           </div>
         </div>
       </div>

@@ -15,9 +15,9 @@ export async function getRecipes(
 }
 
 export async function putRecipe(recipe: Recipe) {
-  const url = new URL(`/api/recipe:${recipe.id}`, baseUrl);
+  const url = new URL(`/api/recipe/${recipe.id}`, baseUrl);
   const rsps = await fetch(url.toString(), {
-    method: "PUT",
+    method: "PATCH",
     body: JSON.stringify(recipe),
   });
   return await rsps.json();

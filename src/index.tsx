@@ -5,7 +5,8 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import createMockedServer from "./lib/mock-server";
 
-createMockedServer("development");
+createMockedServer("local-storage");
+//createMockedServer("api");
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

@@ -2,9 +2,22 @@ import { createServer, Factory, Model } from "miragejs";
 import recipesData from "./recipes-data.json";
 import { Recipe } from "./model";
 
-export default function createMockedServer(env = "test") {
+export default function createMockedServer(type = "local-storage") {
+  return type === "local-storage"
+    ? createLocalStorageServer()
+    : createMirageServer();
+}
+
+function createLocalStorageServer() {
+  const jsonStr = localStorage.getItem("recipes");
+  if (jsonStr == null) {
+    localStorage.setItem("recipes", JSON.stringify(recipesData as Recipe[]));
+  }
+}
+
+function createMirageServer() {
   return createServer({
-    environment: env,
+    environment: "development",
     models: {
       recipe: Model,
     },
@@ -30,12 +43,17 @@ export default function createMockedServer(env = "test") {
           : schema.all("recipe");
       });
 
-      this.put("/recipe:id", (schema, request) => {
+      this.patch("/recipe/:id", (schema, request) => {
         const id = request.params.id;
         const attrs = JSON.parse(request.requestBody);
-        const recipe = schema.find("recipe", id);
+        const recipe = schema.find<"recipe">("recipe", id);
 
-        return recipe;
+        if (recipe) {
+          recipe.update(attrs);
+          return recipe;
+        }
+
+        return schema.create(attrs);
       });
     },
 
