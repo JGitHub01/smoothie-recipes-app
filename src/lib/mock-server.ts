@@ -1,6 +1,6 @@
 import { createServer, Factory, Model } from "miragejs";
 import recipesData from "./recipes-data.json";
-import { Recipe } from "./model";
+import { IRecipe } from "./model";
 
 export default function createMockedServer(type = "local-storage") {
   return type === "local-storage"
@@ -11,7 +11,7 @@ export default function createMockedServer(type = "local-storage") {
 function createLocalStorageServer() {
   const jsonStr = localStorage.getItem("recipes");
   if (jsonStr == null) {
-    localStorage.setItem("recipes", JSON.stringify(recipesData as Recipe[]));
+    localStorage.setItem("recipes", JSON.stringify(recipesData as IRecipe[]));
   }
 }
 
@@ -37,7 +37,7 @@ function createMirageServer() {
         return name
           ? schema.where<"recipe">(
               "recipe",
-              (recipe: Recipe) =>
+              (recipe: IRecipe) =>
                 recipe.name.search(new RegExp(name, "i")) > -1,
             )
           : schema.all("recipe");

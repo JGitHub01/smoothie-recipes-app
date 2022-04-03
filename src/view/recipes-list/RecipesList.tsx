@@ -1,23 +1,21 @@
 import { putRecipe } from "../../lib/local-storage-service";
 //import { putRecipe } from "../../lib/api-service";
-import { Recipe } from "../../lib/model";
+import { IRecipe } from "../../lib/model";
 import { RecipeCard } from "./RecipeCard";
 
 interface RecipesListProps {
-  recipes: Recipe[];
+  recipes: IRecipe[];
   onSave?: (status: { success: boolean }) => void;
 }
 export function RecipesList({ recipes = [], onSave }: RecipesListProps) {
   const expandedRecipe = recipes.length > 0 ? recipes[0].name : "";
   return (
     <>
-      {recipes.map(({ id, name, ingredients }) => (
+      {recipes.map((recipe) => (
         <RecipeCard
-          key={id}
-          expanded={expandedRecipe === name}
-          id={id}
-          name={name}
-          ingredients={[...ingredients]}
+          key={recipe.id}
+          expanded={expandedRecipe === recipe.name}
+          recipe={recipe}
           onSave={async (recipe) => {
             try {
               await putRecipe(recipe);

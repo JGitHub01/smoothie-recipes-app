@@ -1,13 +1,13 @@
-import { Recipe, RecipesFilter } from "./model";
+import { IRecipe, IRecipesFilter } from "./model";
 
 export async function getRecipes(
-  filter?: RecipesFilter,
-): Promise<{ recipes: Recipe[] }> {
+  filter?: IRecipesFilter,
+): Promise<{ recipes: IRecipe[] }> {
   const jsonStr = localStorage.getItem("recipes");
   if (jsonStr == null) {
     return Promise.resolve({ recipes: [] });
   }
-  const recipes = JSON.parse(jsonStr) as Recipe[];
+  const recipes = JSON.parse(jsonStr) as IRecipe[];
   const name = filter?.name;
   if (name) {
     return {
@@ -20,10 +20,10 @@ export async function getRecipes(
   return { recipes: recipes };
 }
 
-export async function putRecipe(recipe: Recipe) {
+export async function putRecipe(recipe: IRecipe) {
   const jsonStr = localStorage.getItem("recipes");
-  const recipes: Recipe[] =
-    jsonStr == null ? [] : (JSON.parse(jsonStr) as Recipe[]);
+  const recipes: IRecipe[] =
+    jsonStr == null ? [] : (JSON.parse(jsonStr) as IRecipe[]);
   const matchIdx = recipes.findIndex((r) => r.id === recipe.id);
   if (matchIdx === -1) {
     recipes.push(recipe);

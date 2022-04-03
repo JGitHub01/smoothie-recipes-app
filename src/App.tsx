@@ -4,7 +4,7 @@ import "./app.scss";
 import { getRecipes } from "./lib/local-storage-service";
 //import { getRecipes } from "./lib/api-service";
 import { debounceTimer } from "./lib/debounceTimer";
-import { Recipe } from "./lib/model";
+import { IRecipe } from "./lib/model";
 import { RecipesList } from "./view/recipes-list/RecipesList";
 
 function App() {
@@ -55,11 +55,11 @@ function App() {
 }
 
 function useSearch(): [
-  recipes: Recipe[],
+  recipes: IRecipe[],
   keyword: string,
   search: (keyword?: string, delay?: number) => void,
 ] {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<IRecipe[]>([]);
   const [keyword, setKeyword] = useState<string>("");
   const search = async (keyword?: string, delay?: number) => {
     setKeyword(keyword ?? "");

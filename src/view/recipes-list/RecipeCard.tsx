@@ -4,13 +4,14 @@ import {
   ListItem,
   makeStyles,
   TextField,
+  Icon,
 } from "@material-ui/core";
 import MuiAccordion from "@material-ui/core/Accordion";
 import MuiAccordionSummary from "@material-ui/core/AccordionSummary";
 import MuiAccordionDetails from "@material-ui/core/AccordionDetails";
 import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import { Recipe } from "../../lib/model";
+import { IRecipe, IIngredient } from "../../lib/model";
 import "./recipe-card.scss";
 import { useEffect, useState } from "react";
 
@@ -79,32 +80,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type RecipeMode = "display" | "edit";
-interface IRecipeCardProps extends Recipe {
+interface IRecipeCardProps {
+  recipe: IRecipe;
   mode?: RecipeMode;
   expanded?: boolean;
-  onSave?: (recipe: Recipe) => void;
+  onSave?: (recipe: IRecipe) => void;
 }
 export function RecipeCard(props: IRecipeCardProps) {
   const classes = useStyles();
   const [expanded, setExpanded] = useState(props.expanded);
   const [recipe, setRecipe, mode, editButton, saveButton, cancelButton] =
-    useRecipeModes(
-      props.mode ?? "display",
-      {
-        id: props.id,
-        name: props.name,
-        ingredients: [...props.ingredients],
-      },
-      props.onSave,
-    );
+    useRecipeModes(props.mode ?? "display", props.recipe, props.onSave);
   const { name, ingredients } = recipe;
   useEffect(() => {
-    setRecipe({
-      id: props.id,
-      name: props.name,
-      ingredients: props.ingredients,
-    });
-  }, [props.id, props.name, props.ingredients]);
+    setRecipe(props.recipe);
+  }, [props.recipe]);
   return (
     <Accordion
       square
@@ -118,54 +108,60 @@ export function RecipeCard(props: IRecipeCardProps) {
       </AccordionSummary>
       <AccordionDetails>
         <List className={classes["ingredients-list"]}>
+          {mode === "edit" ? (
+            <ListItem className={classes.ingredient}>
+              <IngredientEdit
+                isNew
+                onAdd={(ingredient) => {
+                  setRecipe({
+                    ...recipe,
+                    ingredients: [ingredient, ...ingredients],
+                  });
+                }}
+              />
+            </ListItem>
+          ) : undefined}
           {ingredients?.map(({ name, quantity }, ingredientIdx) => (
             <ListItem key={ingredientIdx} className={classes.ingredient}>
               {mode === "display" ? (
-                <>
-                  <Typography className={classes.quantity}>
-                    {quantity}
-                  </Typography>
-                  <Typography className={classes.name}>{name}</Typography>
-                </>
+                <IngredientDisplay name={name} quantity={quantity} />
               ) : (
-                <>
-                  <TextField
-                    className={classes.quantity}
-                    variant="standard"
-                    placeholder="Quantity"
-                    value={quantity}
-                    onChange={(e) => {
-                      setRecipe({
-                        ...recipe,
-                        ingredients: ingredients.map(
-                          ({ name, quantity }, idx) => {
-                            return idx === ingredientIdx
-                              ? { name, quantity: e.target.value }
-                              : { name, quantity };
-                          },
-                        ),
-                      });
-                    }}
-                  />
-                  <TextField
-                    className={classes.name}
-                    variant="standard"
-                    placeholder="Ingredient"
-                    value={name}
-                    onChange={(e) => {
-                      setRecipe({
-                        ...recipe,
-                        ingredients: ingredients.map(
-                          ({ name, quantity }, idx) => {
-                            return idx === ingredientIdx
-                              ? { name: e.target.value, quantity }
-                              : { name, quantity };
-                          },
-                        ),
-                      });
-                    }}
-                  />
-                </>
+                <IngredientEdit
+                  name={name}
+                  quantity={quantity}
+                  onQuantityChange={(newQuantity) => {
+                    setRecipe({
+                      ...recipe,
+                      ingredients: ingredients.map(
+                        ({ name, quantity }, idx) => {
+                          return idx === ingredientIdx
+                            ? { name, quantity: newQuantity }
+                            : { name, quantity };
+                        },
+                      ),
+                    });
+                  }}
+                  onNameChange={(newName) => {
+                    setRecipe({
+                      ...recipe,
+                      ingredients: ingredients.map(
+                        ({ name, quantity }, idx) => {
+                          return idx === ingredientIdx
+                            ? { name: newName, quantity }
+                            : { name, quantity };
+                        },
+                      ),
+                    });
+                  }}
+                  onRemove={() => {
+                    const newIngredients = [...ingredients];
+                    newIngredients.splice(ingredientIdx, 1);
+                    setRecipe({
+                      ...recipe,
+                      ingredients: newIngredients,
+                    });
+                  }}
+                />
               )}
             </ListItem>
           ))}
@@ -185,18 +181,18 @@ export function RecipeCard(props: IRecipeCardProps) {
 
 function useRecipeModes(
   initMode: RecipeMode,
-  initRecipe: Recipe,
-  onSave?: (recipe: Recipe) => void,
+  initRecipe: IRecipe,
+  onSave?: (recipe: IRecipe) => void,
 ): [
-  recipe: Recipe,
-  setRecipe: (recipe: Recipe) => void,
+  recipe: IRecipe,
+  setRecipe: (recipe: IRecipe) => void,
   mode: "display" | "edit",
   editButton: JSX.Element,
   saveButton: JSX.Element,
   cancelButton: JSX.Element,
 ] {
   const [mode, setMode] = useState<RecipeMode>(initMode);
-  const [recipe, setRecipe] = useState<Recipe>(initRecipe);
+  const [recipe, setRecipe] = useState<IRecipe>(initRecipe);
   const switchMode = () => {
     setMode(mode === "display" ? "edit" : "display");
   };
@@ -232,4 +228,83 @@ function useRecipeModes(
   );
 
   return [recipe, setRecipe, mode, editButton, saveButton, cancelButton];
+}
+
+function IngredientDisplay({ name, quantity }: IIngredient) {
+  const classes = useStyles();
+  return (
+    <>
+      <Typography className={classes.quantity}>{quantity}</Typography>
+      <Typography className={classes.name}>{name}</Typography>
+    </>
+  );
+}
+
+interface IIngredientEditProps extends IIngredient {
+  isNew?: boolean;
+  onQuantityChange?: (quantity: string) => void;
+  onNameChange?: (name: string) => void;
+  onAdd?: (ingredient: IIngredient) => void;
+  onRemove?: () => void;
+}
+function IngredientEdit({
+  name,
+  quantity,
+  isNew,
+  onQuantityChange,
+  onNameChange,
+  onAdd,
+  onRemove,
+}: IIngredientEditProps) {
+  const classes = useStyles();
+  const [ingredient, setIngredient] = useState<IIngredient>({
+    name: "",
+    quantity: "",
+  });
+  return (
+    <>
+      <TextField
+        className={classes.quantity}
+        variant="standard"
+        placeholder="Quantity"
+        value={isNew ? ingredient.quantity : quantity}
+        onChange={(e) => {
+          isNew
+            ? setIngredient({ ...ingredient, quantity: e.target.value })
+            : onQuantityChange && onQuantityChange(e.target.value);
+        }}
+      />
+      <TextField
+        className={classes.name}
+        variant="standard"
+        placeholder="Ingredient"
+        value={isNew ? ingredient.name : name}
+        onChange={(e) => {
+          isNew
+            ? setIngredient({ ...ingredient, name: e.target.value })
+            : onNameChange && onNameChange(e.target.value);
+        }}
+      />
+      {isNew ? (
+        <Icon
+          color="primary"
+          onClick={() => {
+            setIngredient({ name: "", quantity: "" });
+            onAdd && onAdd(ingredient);
+          }}
+        >
+          add_circle
+        </Icon>
+      ) : (
+        <Icon
+          color="primary"
+          onClick={() => {
+            onRemove && onRemove();
+          }}
+        >
+          delete
+        </Icon>
+      )}
+    </>
+  );
 }

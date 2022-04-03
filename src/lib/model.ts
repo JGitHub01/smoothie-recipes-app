@@ -1,14 +1,14 @@
-export interface Recipe {
+export interface IRecipe {
   id: string;
   name: string;
-  ingredients: Ingredient[];
+  ingredients: IIngredient[];
 }
 
-export interface Ingredient {
-  name: string;
-  quantity: string;
+export interface IIngredient {
+  name?: string;
+  quantity?: string;
 }
 
-export interface RecipesFilter {
+export interface IRecipesFilter {
   name?: string;
 }
