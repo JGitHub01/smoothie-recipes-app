@@ -1,7 +1,7 @@
 export interface IRecipe {
   id: string;
-  name: string;
-  ingredients: IIngredient[];
+  name?: string;
+  ingredients?: IIngredient[];
 }
 
 export interface IIngredient {

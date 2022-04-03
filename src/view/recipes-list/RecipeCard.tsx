@@ -5,6 +5,7 @@ import {
   makeStyles,
   TextField,
   Icon,
+  IconButton,
 } from "@material-ui/core";
 import MuiAccordion from "@material-ui/core/Accordion";
 import MuiAccordionSummary from "@material-ui/core/AccordionSummary";
@@ -63,6 +64,11 @@ const useStyles = makeStyles((theme) => ({
   "ingredients-list": {
     width: "100%",
   },
+  "new-recipe-name": {
+    width: "50%",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
   ingredient: {
     display: "flex",
     flexDirection: "row",
@@ -79,18 +85,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type RecipeMode = "display" | "edit";
+type RecipeMode = "DISPLAY" | "EDIT" | "CREATE";
 interface IRecipeCardProps {
   recipe: IRecipe;
   mode?: RecipeMode;
   expanded?: boolean;
   onSave?: (recipe: IRecipe) => void;
+  onCancel?: () => void;
 }
 export function RecipeCard(props: IRecipeCardProps) {
   const classes = useStyles();
   const [expanded, setExpanded] = useState(props.expanded);
   const [recipe, setRecipe, mode, editButton, saveButton, cancelButton] =
-    useRecipeModes(props.mode ?? "display", props.recipe, props.onSave);
+    useRecipeModes(
+      props.mode ?? "DISPLAY",
+      props.recipe,
+      props.onSave,
+      props.onCancel,
+    );
   const { name, ingredients } = recipe;
   useEffect(() => {
     setRecipe(props.recipe);
@@ -104,18 +116,31 @@ export function RecipeCard(props: IRecipeCardProps) {
       }}
     >
       <AccordionSummary aria-controls={`${name}-content`} id={`${name}-header`}>
-        <Typography variant="h6">{name}</Typography>
+        {mode === "CREATE" ? (
+          <TextField
+            className={classes["new-recipe-name"]}
+            placeholder="New recipe name"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            onChange={(e) => {
+              setRecipe({ ...recipe, name: e.target.value });
+            }}
+          />
+        ) : (
+          <Typography variant="h6">{name}</Typography>
+        )}
       </AccordionSummary>
       <AccordionDetails>
         <List className={classes["ingredients-list"]}>
-          {mode === "edit" ? (
+          {mode === "EDIT" || mode === "CREATE" ? (
             <ListItem className={classes.ingredient}>
               <IngredientEdit
                 isNew
                 onAdd={(ingredient) => {
                   setRecipe({
                     ...recipe,
-                    ingredients: [ingredient, ...ingredients],
+                    ingredients: [ingredient, ...(ingredients ?? [])],
                   });
                 }}
               />
@@ -123,7 +148,7 @@ export function RecipeCard(props: IRecipeCardProps) {
           ) : undefined}
           {ingredients?.map(({ name, quantity }, ingredientIdx) => (
             <ListItem key={ingredientIdx} className={classes.ingredient}>
-              {mode === "display" ? (
+              {mode === "DISPLAY" ? (
                 <IngredientDisplay name={name} quantity={quantity} />
               ) : (
                 <IngredientEdit
@@ -166,7 +191,7 @@ export function RecipeCard(props: IRecipeCardProps) {
             </ListItem>
           ))}
         </List>
-        {mode === "display" ? (
+        {mode === "DISPLAY" ? (
           editButton
         ) : (
           <div>
@@ -183,10 +208,11 @@ function useRecipeModes(
   initMode: RecipeMode,
   initRecipe: IRecipe,
   onSave?: (recipe: IRecipe) => void,
+  onCancel?: () => void,
 ): [
   recipe: IRecipe,
   setRecipe: (recipe: IRecipe) => void,
-  mode: "display" | "edit",
+  mode: RecipeMode,
   editButton: JSX.Element,
   saveButton: JSX.Element,
   cancelButton: JSX.Element,
@@ -194,7 +220,7 @@ function useRecipeModes(
   const [mode, setMode] = useState<RecipeMode>(initMode);
   const [recipe, setRecipe] = useState<IRecipe>(initRecipe);
   const switchMode = () => {
-    setMode(mode === "display" ? "edit" : "display");
+    setMode(mode === "DISPLAY" ? "EDIT" : "DISPLAY");
   };
   const editButton = (
     <Button
@@ -207,20 +233,25 @@ function useRecipeModes(
   );
   const saveButton = (
     <Button
+      disabled={mode === "CREATE" && (!recipe.name || !recipe.ingredients)}
       onClick={() => {
         switchMode();
         setRecipe(initRecipe);
         onSave && onSave(recipe);
       }}
     >
-      Save
+      {mode === "CREATE" ? "Create" : "Save"}
     </Button>
   );
   const cancelButton = (
     <Button
       onClick={() => {
-        switchMode();
-        setRecipe(initRecipe);
+        if (mode === "CREATE") {
+          onCancel && onCancel();
+        } else {
+          switchMode();
+          setRecipe(initRecipe);
+        }
       }}
     >
       Cancel
@@ -286,24 +317,26 @@ function IngredientEdit({
         }}
       />
       {isNew ? (
-        <Icon
+        <IconButton
           color="primary"
+          aria-label="add"
           onClick={() => {
             setIngredient({ name: "", quantity: "" });
             onAdd && onAdd(ingredient);
           }}
         >
-          add_circle
-        </Icon>
+          <Icon>add_circle</Icon>
+        </IconButton>
       ) : (
-        <Icon
+        <IconButton
           color="primary"
+          aria-label="delete"
           onClick={() => {
             onRemove && onRemove();
           }}
         >
-          delete
-        </Icon>
+          <Icon>delete</Icon>
+        </IconButton>
       )}
     </>
   );

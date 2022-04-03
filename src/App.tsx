@@ -9,6 +9,7 @@ import { RecipesList } from "./view/recipes-list/RecipesList";
 
 function App() {
   const [recipes, keyword, search] = useSearch();
+  const [isCreative, setIsCreative] = useState(false);
   useEffect(() => {
     search();
   }, []);
@@ -36,15 +37,25 @@ function App() {
                 search(event.target.value, 300);
               }}
             />
-            <Button variant="outlined" color="primary">
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                setIsCreative(true);
+              }}
+            >
               New Recipe
             </Button>
           </div>
           <div className="recipes-panel__list">
             <RecipesList
+              isCreative={isCreative}
               recipes={recipes}
               onSave={(status) => {
                 search();
+              }}
+              onCancelCreate={() => {
+                setIsCreative(false);
               }}
             />
           </div>

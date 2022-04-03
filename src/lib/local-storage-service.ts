@@ -12,7 +12,8 @@ export async function getRecipes(
   if (name) {
     return {
       recipes: recipes.filter(
-        (recipe) => recipe.name.search(new RegExp(name, "i")) > -1,
+        (recipe) =>
+          recipe.name && recipe.name.search(new RegExp(name, "i")) > -1,
       ),
     };
   }

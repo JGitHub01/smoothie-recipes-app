@@ -38,7 +38,7 @@ function createMirageServer() {
           ? schema.where<"recipe">(
               "recipe",
               (recipe: IRecipe) =>
-                recipe.name.search(new RegExp(name, "i")) > -1,
+                recipe.name && recipe.name.search(new RegExp(name, "i")) > -1,
             )
           : schema.all("recipe");
       });
