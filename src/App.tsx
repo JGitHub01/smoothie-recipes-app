@@ -38,7 +38,7 @@ function App() {
               }}
             />
             <Button
-              variant="outlined"
+              variant="contained"
               color="primary"
               onClick={() => {
                 setIsCreative(true);
@@ -54,7 +54,7 @@ function App() {
               onSave={(status) => {
                 search();
               }}
-              onCancelCreate={() => {
+              onCreateClose={() => {
                 setIsCreative(false);
               }}
             />

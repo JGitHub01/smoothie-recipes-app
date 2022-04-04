@@ -54,6 +54,8 @@
       &__list {
         max-width: 750px;
         width: 75vw;
+        height: calc(100vh - 166px - 56px - 16px);
+        overflow: auto;
       }
     }
     .recipe-card {

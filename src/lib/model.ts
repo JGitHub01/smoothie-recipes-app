@@ -3,6 +3,7 @@ export interface IRecipe {
   name?: string;
   ingredients?: IIngredient[];
 }
+export const EmptyRecipe: IRecipe = { id: "" };
 
 export interface IIngredient {
   name?: string;

@@ -15,6 +15,7 @@ import Typography from "@material-ui/core/Typography";
 import { IRecipe, IIngredient } from "../../lib/model";
 import "./recipe-card.scss";
 import { useEffect, useState } from "react";
+import { checkRecipeNameAvailability } from "../../lib/local-storage-service";
 
 const Accordion = withStyles({
   root: {
@@ -91,40 +92,48 @@ interface IRecipeCardProps {
   mode?: RecipeMode;
   expanded?: boolean;
   onSave?: (recipe: IRecipe) => void;
-  onCancel?: () => void;
+  onCreateClose?: () => void;
 }
 export function RecipeCard(props: IRecipeCardProps) {
   const classes = useStyles();
-  const [expanded, setExpanded] = useState(props.expanded);
-  const [recipe, setRecipe, mode, editButton, saveButton, cancelButton] =
-    useRecipeModes(
-      props.mode ?? "DISPLAY",
-      props.recipe,
-      props.onSave,
-      props.onCancel,
-    );
-  const { name, ingredients } = recipe;
+  const [
+    recipe,
+    setRecipe,
+    isRecipeNameAvailable,
+    setIsRecipeNameAvailable,
+    mode,
+    editButton,
+    saveButton,
+    closeButton,
+    cancelButton,
+  ] = useRecipeModes(
+    props.mode ?? "DISPLAY",
+    props.recipe,
+    props.onSave,
+    props.onCreateClose,
+  );
+  const { name = "", ingredients = [] } = recipe;
   useEffect(() => {
     setRecipe(props.recipe);
   }, [props.recipe]);
   return (
-    <Accordion
-      square
-      expanded={expanded}
-      onChange={(e, isExpanded) => {
-        setExpanded(isExpanded);
-      }}
-    >
+    <Accordion square expanded={props.expanded}>
       <AccordionSummary aria-controls={`${name}-content`} id={`${name}-header`}>
         {mode === "CREATE" ? (
           <TextField
+            error={!isRecipeNameAvailable}
+            helperText={isRecipeNameAvailable ? "" : "Duplicate recipe name!"}
             className={classes["new-recipe-name"]}
-            placeholder="New recipe name"
+            placeholder="New recipe name (required)"
+            value={name}
             onClick={(e) => {
               e.stopPropagation();
             }}
-            onChange={(e) => {
-              setRecipe({ ...recipe, name: e.target.value });
+            onChange={async (e) => {
+              const name = e.target.value;
+              const isNameAvailable = await checkRecipeNameAvailability(name);
+              setIsRecipeNameAvailable(isNameAvailable);
+              setRecipe({ ...recipe, name });
             }}
           />
         ) : (
@@ -193,9 +202,15 @@ export function RecipeCard(props: IRecipeCardProps) {
         </List>
         {mode === "DISPLAY" ? (
           editButton
+        ) : mode === "EDIT" ? (
+          <div>
+            {saveButton}
+            {cancelButton}
+          </div>
         ) : (
           <div>
             {saveButton}
+            {closeButton}
             {cancelButton}
           </div>
         )}
@@ -208,17 +223,21 @@ function useRecipeModes(
   initMode: RecipeMode,
   initRecipe: IRecipe,
   onSave?: (recipe: IRecipe) => void,
-  onCancel?: () => void,
+  onCreateClose?: () => void,
 ): [
   recipe: IRecipe,
   setRecipe: (recipe: IRecipe) => void,
+  isRecipeNameAvailable: boolean,
+  setIsRecipeNameAvailable: (available: boolean) => void,
   mode: RecipeMode,
   editButton: JSX.Element,
   saveButton: JSX.Element,
+  closeButton: JSX.Element,
   cancelButton: JSX.Element,
 ] {
   const [mode, setMode] = useState<RecipeMode>(initMode);
   const [recipe, setRecipe] = useState<IRecipe>(initRecipe);
+  const [isRecipeNameAvailable, setIsRecipeNameAvailable] = useState(true);
   const switchMode = () => {
     setMode(mode === "DISPLAY" ? "EDIT" : "DISPLAY");
   };
@@ -233,9 +252,14 @@ function useRecipeModes(
   );
   const saveButton = (
     <Button
-      disabled={mode === "CREATE" && (!recipe.name || !recipe.ingredients)}
+      disabled={mode === "CREATE" && (!recipe.name || !isRecipeNameAvailable)}
+      color="primary"
       onClick={() => {
-        switchMode();
+        if (mode === "CREATE") {
+          onCreateClose && onCreateClose();
+        } else {
+          switchMode();
+        }
         setRecipe(initRecipe);
         onSave && onSave(recipe);
       }}
@@ -243,14 +267,23 @@ function useRecipeModes(
       {mode === "CREATE" ? "Create" : "Save"}
     </Button>
   );
+  const closeButton = (
+    <Button
+      onClick={() => {
+        onCreateClose && onCreateClose();
+      }}
+    >
+      Close
+    </Button>
+  );
   const cancelButton = (
     <Button
       onClick={() => {
+        setRecipe(initRecipe);
         if (mode === "CREATE") {
-          onCancel && onCancel();
+          onCreateClose && onCreateClose();
         } else {
           switchMode();
-          setRecipe(initRecipe);
         }
       }}
     >
@@ -258,7 +291,17 @@ function useRecipeModes(
     </Button>
   );
 
-  return [recipe, setRecipe, mode, editButton, saveButton, cancelButton];
+  return [
+    recipe,
+    setRecipe,
+    isRecipeNameAvailable,
+    setIsRecipeNameAvailable,
+    mode,
+    editButton,
+    saveButton,
+    closeButton,
+    cancelButton,
+  ];
 }
 
 function IngredientDisplay({ name, quantity }: IIngredient) {
