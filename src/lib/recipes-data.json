@@ -31,5 +31,25 @@
       "name": "ice cubes",
       "quantity": "3"
     }]
+  }, {
+    "id": "3",
+    "name": "Carrot and Orange Smoothie",
+    "ingredients": [{
+        "name": "fresh or cooked carrots",
+        "quantity": "4 ounces"
+      }, {
+        "name": "oranges peels removed",
+        "quantity": "3 medium sized"
+      }, {
+        "name": "Almond Breeze Original Almondmilk",
+        "quantity": "3/4 cup"
+      }, {
+        "name": "ice",
+        "quantity": "1 cup"
+      }, {
+        "name": "ripe banana",
+        "quantity": "one"
+      }
+    ]
   }
 ]

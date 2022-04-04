@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
+import { useRef, useEffect } from "react";
 import { postRecipe, putRecipe } from "../../lib/local-storage-service";
 //import { putRecipe } from "../../lib/api-service";
 import { EmptyRecipe, IRecipe } from "../../lib/model";
@@ -22,10 +23,19 @@ export function RecipesList({
   onCreateClose,
 }: RecipesListProps) {
   const classes = useStyles();
+  const createRef = useRef<HTMLDivElement>(null);
   //const expandedRecipe = recipes.length > 0 ? recipes[0].name : "";
+  useEffect(() => {
+    if (isCreative) {
+      createRef.current?.scrollIntoView();
+    }
+  }, [isCreative]);
   return (
     <>
-      <div className={isCreative ? "" : classes["not-creating"]}>
+      <div
+        ref={createRef}
+        className={isCreative ? "" : classes["not-creating"]}
+      >
         <RecipeCard
           mode="CREATE"
           expanded
