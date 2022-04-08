@@ -115,7 +115,7 @@ export function RecipeCard(props: IRecipeCardProps) {
   const { name = "", ingredients = [] } = recipe;
   useEffect(() => {
     setRecipe(props.recipe);
-  }, [props.recipe]);
+  }, [props.recipe, setRecipe]);
   return (
     <Accordion square expanded={props.expanded}>
       <AccordionSummary aria-controls={`${name}-content`} id={`${name}-header`}>
