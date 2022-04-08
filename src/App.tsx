@@ -1,5 +1,5 @@
 import { Button, Icon, InputAdornment, TextField } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./app.scss";
 import { getRecipes } from "./lib/local-storage-service";
 //import { getRecipes } from "./lib/api-service";
@@ -12,7 +12,7 @@ function App() {
   const [isCreative, setIsCreative] = useState(false);
   useEffect(() => {
     search();
-  }, []);
+  }, [search]);
   return (
     <div className="app-light-theme">
       <header className="app-header">
@@ -72,7 +72,7 @@ function useSearch(): [
 ] {
   const [recipes, setRecipes] = useState<IRecipe[]>([]);
   const [keyword, setKeyword] = useState<string>("");
-  const search = async (keyword?: string, delay?: number) => {
+  const search = useCallback(async (keyword?: string, delay?: number) => {
     setKeyword(keyword ?? "");
     if (delay === undefined || delay === 0) {
       const { recipes } = await getRecipes({ name: keyword });
@@ -83,7 +83,7 @@ function useSearch(): [
         setRecipes(recipes);
       }, delay);
     }
-  };
+  }, []);
   return [recipes, keyword, search];
 }
 export default App;
